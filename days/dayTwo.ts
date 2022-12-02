@@ -1,5 +1,3 @@
-import { equal } from "assert";
-
 export{}
 
 export function secondDay(filePath: string = '.\\days\\inputs\\two'): [number, number] {
@@ -22,7 +20,7 @@ function readFile(filePath: string): string[][] {
         }
         return data;
     } catch (error) {
-        console.error("Error in input file!");
+        console.error(error.message);
     }
 }
 
@@ -31,8 +29,7 @@ function partOne(data: string[][]): number {
     data.forEach(e => {
         let opponent: Choice = getChoice(e[0]);
         let me: Choice = getChoice(e[1]);
-        let currentRound: Round = new Round(opponent, me);
-        tournamentScore += currentRound.calculateRoundScore();
+        tournamentScore += calculateRoundScore(opponent, me);
     });
     return tournamentScore;
 }
@@ -42,60 +39,10 @@ function partTwo(data: string[][]): number {
     data.forEach(e => {
         let opponent: Choice = getChoice(e[0]);
         let stat: GameStat = getPredictedStat(e[1]);
-        let me: Choice;
-        switch (stat) {
-            case GameStat.Loss:
-                if (opponent === Choice.Rock) {
-                    me = Choice.Scissors;
-                } else if (opponent === Choice.Paper) {
-                    me = Choice.Rock;
-                } else {
-                    me = Choice.Paper;
-                }
-                break;
-            case GameStat.Draw:
-                me = opponent;
-                break;
-            case GameStat.Win:
-                if (opponent === Choice.Rock) {
-                    me = Choice.Paper;
-                } else if (opponent === Choice.Paper) {
-                    me = Choice.Scissors;
-                } else {
-                    me = Choice.Rock;
-                }
-                break;
-        }
+        let me: Choice = getToPlayableChoice(opponent, stat);
         tournamentScore += (stat.valueOf() + me.valueOf());
     });
     return tournamentScore;
-}
-
-class Round {
-    opponentChoice: Choice;
-    myChoice: Choice;
-    stat: GameStat;
-
-    constructor(x: Choice, y: Choice) {
-        this.opponentChoice = x;
-        this.myChoice = y;
-    }
-
-    calculateRoundScore(): number {
-        let score: number = this.myChoice.valueOf();
-        if (this.myChoice === Choice.Rock && this.opponentChoice == Choice.Scissors) {
-            score += GameStat.Win.valueOf();
-        } else if (this.myChoice == Choice.Scissors && this.opponentChoice == Choice.Paper) {
-            score += GameStat.Win.valueOf();
-        } else if (this.myChoice == Choice.Paper && this.opponentChoice == Choice.Rock) {
-            score += GameStat.Win.valueOf();
-        } else if (this.myChoice === this.opponentChoice) {
-            score += GameStat.Draw.valueOf();
-        } else {
-            score += GameStat.Loss.valueOf();
-        }
-        return score;
-    }
 }
 
 enum GameStat {
@@ -111,7 +58,7 @@ enum Choice {
 }
 
 /**
- * This functions decodes the input letter and returns the 
+ * This function decodes the input letter and returns the 
  * correct Choice based on the following key:
  * 
  * A,X -> Rock
@@ -134,6 +81,16 @@ function getChoice(input: string): Choice | never {
     }
 }
 
+/**
+ * This function decodes the input letter and returns the 
+ * correct GameStat based on the following key:
+ * 
+ * X -> Loss, Y -> Draw, Z -> Win
+ * 
+ * @param input the encoded input letter of the input file
+ * @returns a member of the GameStat enum
+ * @throws an error exception if the param doesn't match a key
+ */
 function getPredictedStat(input: string): GameStat | never {
     switch (input) {
         case "X":
@@ -144,5 +101,60 @@ function getPredictedStat(input: string): GameStat | never {
             return GameStat.Win;
         default:
             throw new Error("Wrong input in input file!");
+    }
+}
+
+/**
+ * This function calculates the score of a game-round
+ * based on the given choice and the outcome
+ * 
+ * @param opponentChoice the opponents choice
+ * @param myChoice my choice
+ * @returns a number, the calculated score
+ */
+function calculateRoundScore(opponentChoice: Choice, myChoice: Choice): number {
+    let score: number = myChoice.valueOf();
+    if (myChoice === Choice.Rock && opponentChoice == Choice.Scissors) {
+        score += GameStat.Win.valueOf();
+    } else if (myChoice == Choice.Scissors && opponentChoice == Choice.Paper) {
+        score += GameStat.Win.valueOf();
+    } else if (myChoice == Choice.Paper && opponentChoice == Choice.Rock) {
+        score += GameStat.Win.valueOf();
+    } else if (myChoice === opponentChoice) {
+        score += GameStat.Draw.valueOf();
+    } else {
+        score += GameStat.Loss.valueOf();
+    }
+    return score;
+}
+
+/**
+ * This function returns the option which needs to be played
+ * based on the opponents choice and the round outcome.
+ * 
+ * @param opponentChoice the opponents choice
+ * @param outcome the round outcome
+ * @returns a member of the Choice enum
+ */
+function getToPlayableChoice(opponentChoice: Choice, outcome: GameStat): Choice {
+    switch (outcome) {
+        case GameStat.Loss:
+            if (opponentChoice === Choice.Rock) {
+                return Choice.Scissors;
+            } else if (opponentChoice === Choice.Paper) {
+                return Choice.Rock;
+            } else {
+                return Choice.Paper;
+            }
+        case GameStat.Draw:
+            return opponentChoice;
+        case GameStat.Win:
+            if (opponentChoice === Choice.Rock) {
+                return Choice.Paper;
+            } else if (opponentChoice === Choice.Paper) {
+                return Choice.Scissors;
+            } else {
+                return Choice.Rock;
+            }
     }
 }
