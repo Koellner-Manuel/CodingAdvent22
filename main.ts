@@ -2,9 +2,11 @@ export{}
 
 import {firstDay} from './days/dayOne';
 import {secondDay} from './days/dayTwo';
+import {thirdDay} from './days/dayThree';
 
 let dayOne: [number, number] = firstDay();
 let dayTwo: [number, number] = secondDay();
+let dayThree: [number, number] = thirdDay();
 
 console.log(`=============== Advent of code 2k22 ===============
 # DAY 1 - Calorie Counting
@@ -16,4 +18,9 @@ console.log(`=============== Advent of code 2k22 ===============
 # -------------------------
 # * ${dayTwo[0]} -> pt.1
 # * ${dayTwo[1]} -> pt.2
+####################################################
+# DAY 3 - Rucksack Reorganization
+# -------------------------
+# * ${dayThree[0]} -> pt.1
+# * ${dayThree[1]} -> pt.2
 ####################################################`);
