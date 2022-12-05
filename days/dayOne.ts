@@ -56,9 +56,3 @@ function partTwo(data: any[]): number {
     }
     return result;
 }
-
-/*
-function main(data: number[]): number {
-    throw new Error("Function not implemented.");
-}
-*/
